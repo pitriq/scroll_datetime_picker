@@ -119,7 +119,12 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
         _jumpToDate();
         return;
       }
-      _scrollToDate();
+      _isScrollingToDate = true;
+      _scrollToDate().then((_) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          _isScrollingToDate = false;
+        });
+      });
     });
   }
 
@@ -151,7 +156,12 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
     if (widget.dateOption.getInitialDate != _activeDate) {
       _activeDate = widget.dateOption.getInitialDate;
-      _scrollToDate();
+      _isScrollingToDate = true;
+      _scrollToDate().then((_) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          _isScrollingToDate = false;
+        });
+      });
     }
 
     if (widget.style != _style) {
@@ -273,8 +283,6 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   }
 
   Future<void> _scrollToDate() async {
-    _isScrollingToDate = true;
-
     final activeDate = _activeDate;
     final futures = <Future<void>>[];
 
@@ -323,10 +331,6 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     }
 
     await Future.wait(futures);
-
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      _isScrollingToDate = false;
-    });
   }
 
   void _jumpToDate() {
