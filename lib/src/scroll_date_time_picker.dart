@@ -32,6 +32,7 @@ class ScrollDateTimePicker extends StatefulWidget {
     required this.onChange,
     this.itemBuilder,
     this.style,
+    this.disableInitialScrollAnimation = false,
     this.visibleItem = 3,
     this.infiniteScroll = false,
     this.wheelOption = const DateTimePickerWheelOption(),
@@ -78,6 +79,10 @@ class ScrollDateTimePicker extends StatefulWidget {
   /// - If not null, the appearance of every item will be based return value of this builder
   final DateTimePickerItemBuilder? itemBuilder;
 
+  /// Whether to disable the scroll animation that occurs when the picker is
+  /// first displayed.
+  final bool disableInitialScrollAnimation;
+
   @override
   State<ScrollDateTimePicker> createState() => _ScrollDateTimePickerState();
 }
@@ -110,6 +115,10 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     );
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (widget.disableInitialScrollAnimation) {
+        _jumpToDate();
+        return;
+      }
       _isScrollingToDate = true;
       _scrollToDate().then((_) async {
         await Future.delayed(
@@ -324,6 +333,48 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     }
 
     await Future.wait(futures);
+  }
+
+  void _jumpToDate() {
+    final activeDate = _activeDate;
+
+    for (var i = 0; i < _option.dateTimeTypes.length; i++) {
+      late double extent;
+
+      switch (_option.dateTimeTypes[i]) {
+        case DateTimeType.year:
+          extent = _helper.years.indexOf(activeDate.year).toDouble();
+          break;
+        case DateTimeType.month:
+          extent = activeDate.month - 1;
+          break;
+        case DateTimeType.day:
+          extent = activeDate.day - 1;
+          break;
+        case DateTimeType.weekday:
+          extent = activeDate.weekday - 1;
+          break;
+        case DateTimeType.hour24:
+          extent = activeDate.hour.toDouble();
+          break;
+        case DateTimeType.hour12:
+          extent = _helper.convertToHour12(activeDate.hour) - 1;
+          break;
+        case DateTimeType.minute:
+          extent = activeDate.minute.toDouble();
+          break;
+        case DateTimeType.second:
+          extent = activeDate.second.toDouble();
+          break;
+        case DateTimeType.amPM:
+          extent = _helper.isAM(activeDate.hour) ? 0 : 1;
+          break;
+      }
+
+      if (_controllers[i].hasClients) {
+        _controllers[i].jumpTo(widget.itemExtent * extent);
+      }
+    }
   }
 
   Future<void> _onChange(DateTimeType type, int rowIndex) async {
