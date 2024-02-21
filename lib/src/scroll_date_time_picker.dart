@@ -126,7 +126,10 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
       _scrollToDate().then((_) {
         Future.delayed(
           const Duration(milliseconds: 100),
-          () => _isProgrammaticScroll.value = false,
+          () {
+            if (!mounted) return;
+            _isProgrammaticScroll.value = false;
+          },
         );
       });
     });
@@ -164,7 +167,10 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
       _scrollToDate().then((_) {
         Future.delayed(
           const Duration(milliseconds: 100),
-          () => _isProgrammaticScroll.value = false,
+          () {
+            if (!mounted) return;
+            _isProgrammaticScroll.value = false;
+          },
         );
       });
     }
@@ -463,11 +469,14 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
         if (!controller.position.isScrollingNotifier.value) {
           await Future.delayed(
             const Duration(milliseconds: 100),
-            () => controller.animateTo(
-              endOffset,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.bounceOut,
-            ),
+            () {
+              if (!controller.hasClients) return;
+              controller.animateTo(
+                endOffset,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.bounceOut,
+              );
+            },
           );
         }
       }
