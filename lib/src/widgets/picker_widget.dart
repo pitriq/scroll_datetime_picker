@@ -13,6 +13,7 @@ class PickerWidget extends StatefulWidget {
     required this.activeBuilder,
     required this.inactiveBuilder,
     required this.wheelOption,
+    required this.isProgrammaticScroll,
   });
 
   final int itemCount;
@@ -26,6 +27,8 @@ class PickerWidget extends StatefulWidget {
 
   final DateTimePickerWheelOption wheelOption;
 
+  final ValueNotifier<bool> isProgrammaticScroll;
+
   @override
   State<PickerWidget> createState() => _PickerWidgetState();
 }
@@ -33,7 +36,6 @@ class PickerWidget extends StatefulWidget {
 class _PickerWidgetState extends State<PickerWidget> {
   late DateTimePickerWheelOption _wheelOption;
 
-  final _isProgrammaticScroll = ValueNotifier<bool>(false);
   final _centerScrollCtl = ScrollController();
   final _outerScrollCtl = ScrollController();
 
@@ -59,7 +61,6 @@ class _PickerWidgetState extends State<PickerWidget> {
   @override
   void dispose() {
     widget.controller.removeListener(_scrollListener);
-    _isProgrammaticScroll.dispose();
     _centerScrollCtl.dispose();
     _outerScrollCtl.dispose();
     super.dispose();
@@ -121,7 +122,7 @@ class _PickerWidgetState extends State<PickerWidget> {
         /* Main Scrollable */
         ScrollTypeListener(
           onScroll: (isProgrammaticScroll) =>
-              _isProgrammaticScroll.value = isProgrammaticScroll,
+              widget.isProgrammaticScroll.value = isProgrammaticScroll,
           child: NotificationListener<ScrollNotification>(
             onNotification: _onNotification,
             child: ListWheelScrollView.useDelegate(
@@ -153,7 +154,7 @@ class _PickerWidgetState extends State<PickerWidget> {
 
   bool _onNotification(ScrollNotification notification) {
     if (!widget.controller.hasClients) return true;
-    if (_isProgrammaticScroll.value) return true;
+    if (widget.isProgrammaticScroll.value) return true;
 
     /* Handle overshoot */
     if (notification is ScrollEndNotification) {
@@ -171,7 +172,7 @@ class _PickerWidgetState extends State<PickerWidget> {
         /* Return if controller doesn't have client */
         if (!widget.controller.hasClients) return true;
 
-        final allowChange = !_isProgrammaticScroll.value;
+        final allowChange = !widget.isProgrammaticScroll.value;
         final rowIndex =
             (endExtent / widget.itemExtent).floor() % widget.itemCount;
 

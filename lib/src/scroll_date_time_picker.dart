@@ -96,7 +96,8 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   late DateTimePickerHelper _helper;
 
   late final ValueNotifier<bool> isRecheckingPosition;
-  bool _isScrollingToDate = false;
+
+  final _isProgrammaticScroll = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -119,10 +120,10 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
         _jumpToDate();
         return;
       }
-      _isScrollingToDate = true;
+      _isProgrammaticScroll.value = true;
       _scrollToDate().then((_) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
-          _isScrollingToDate = false;
+          _isProgrammaticScroll.value = false;
         });
       });
     });
@@ -156,10 +157,10 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
     if (widget.dateOption.getInitialDate != _activeDate) {
       _activeDate = widget.dateOption.getInitialDate;
-      _isScrollingToDate = true;
+      _isProgrammaticScroll.value = true;
       _scrollToDate().then((_) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
-          _isScrollingToDate = false;
+          _isProgrammaticScroll.value = false;
         });
       });
     }
@@ -213,6 +214,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
                       onChange: (rowIndex) => _onChange(type, rowIndex),
                       itemCount: _helper.itemCount(type),
                       wheelOption: widget.wheelOption,
+                      isProgrammaticScroll: _isProgrammaticScroll,
                       inactiveBuilder: (rowIndex) {
                         final text = _helper.getText(type, pattern, rowIndex);
                         final isDisabled = _helper.isTextDisabled(
@@ -376,8 +378,6 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   }
 
   Future<void> _onChange(DateTimeType type, int rowIndex) async {
-    if (_isScrollingToDate) return;
-
     var newDate = _helper.getDateFromRowIndex(
       type: type,
       rowIndex: rowIndex,

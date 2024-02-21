@@ -40,8 +40,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  DateTime date = DateTime.now();
-  DateTime time = DateTime.now();
+  DateTime? date = DateTime.now();
+  DateTime? time = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -149,63 +149,112 @@ class _MyHomePageState extends State<MyHomePage> {
 
               /* Active Date */
               Text(
-                DateFormat(
-                  'EEEE dd MMMM yyyy',
-                  DevicePreview.locale(context)?.languageCode,
-                ).format(date),
+                date != null
+                    ? DateFormat(
+                        'EEEE dd MMMM yyyy',
+                        DevicePreview.locale(context)?.languageCode,
+                      ).format(date!)
+                    : 'null',
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
               Text(
-                DateFormat(
-                  'HH:mm:ss',
-                  DevicePreview.locale(context)?.languageCode,
-                ).format(time),
+                time != null
+                    ? DateFormat(
+                        'HH:mm:ss',
+                        DevicePreview.locale(context)?.languageCode,
+                      ).format(time!)
+                    : 'null',
                 style: Theme.of(context).textTheme.displaySmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
 
               /* Set date now */
-              Container(
-                margin: const EdgeInsets.all(16),
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.resolveWith(
-                      (states) => AppColor.white,
-                    ),
-                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                      (states) => states.contains(MaterialState.hovered)
-                          ? AppColor.primary.withOpacity(0.8)
-                          : AppColor.primary,
-                    ),
-                    side: MaterialStateProperty.resolveWith<BorderSide>(
-                      (states) => const BorderSide(width: 3),
+              Row(
+                children: [
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                        foregroundColor: MaterialStateProperty.resolveWith(
+                          (states) => AppColor.black,
+                        ),
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith<Color>(
+                          (states) => states.contains(MaterialState.hovered)
+                              ? AppColor.secondary.withOpacity(0.8)
+                              : AppColor.secondary,
+                        ),
+                        side: MaterialStateProperty.resolveWith<BorderSide>(
+                          (states) => const BorderSide(width: 3),
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          date = null;
+                          time = null;
+                        });
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Clear',
+                                style: TextStyle(fontSize: 20),
+                                maxLines: 1,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      date = DateTime.now();
-                      time = DateTime.now();
-                    });
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Set Date Now',
-                          style: TextStyle(fontSize: 30),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                        foregroundColor: MaterialStateProperty.resolveWith(
+                          (states) => AppColor.white,
                         ),
-                        Icon(
-                          Icons.timer,
-                          size: 40,
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith<Color>(
+                          (states) => states.contains(MaterialState.hovered)
+                              ? AppColor.primary.withOpacity(0.8)
+                              : AppColor.primary,
                         ),
-                      ],
+                        side: MaterialStateProperty.resolveWith<BorderSide>(
+                          (states) => const BorderSide(width: 3),
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          date = DateTime.now();
+                          time = DateTime.now();
+                        });
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Set Date Now',
+                                style: TextStyle(fontSize: 20),
+                                maxLines: 1,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 16),
+                ],
               ),
 
               /* Customizer */
