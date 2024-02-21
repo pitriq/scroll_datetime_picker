@@ -166,6 +166,48 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 20),
 
+              /* Set date now */
+              Container(
+                margin: const EdgeInsets.all(16),
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    foregroundColor: MaterialStateProperty.resolveWith(
+                      (states) => AppColor.white,
+                    ),
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (states) => states.contains(MaterialState.hovered)
+                          ? AppColor.primary.withOpacity(0.8)
+                          : AppColor.primary,
+                    ),
+                    side: MaterialStateProperty.resolveWith<BorderSide>(
+                      (states) => const BorderSide(width: 3),
+                    ),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      date = DateTime.now();
+                      time = DateTime.now();
+                    });
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Set Date Now',
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        Icon(
+                          Icons.timer,
+                          size: 40,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
               /* Customizer */
               Container(
                 margin: const EdgeInsets.all(16),

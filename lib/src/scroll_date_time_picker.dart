@@ -109,7 +109,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     );
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      _initDate();
+      _scrollToDate();
     });
   }
 
@@ -137,6 +137,11 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
           );
         }
       }
+    }
+
+    if (widget.dateOption.getInitialDate != _activeDate.value) {
+      _activeDate.value = widget.dateOption.getInitialDate;
+      _scrollToDate();
     }
 
     if (widget.style != _style) {
@@ -258,7 +263,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     );
   }
 
-  void _initDate() {
+  void _scrollToDate() {
     final activeDate = _activeDate.value;
 
     for (var i = 0; i < _option.dateTimeTypes.length; i++) {
@@ -318,20 +323,27 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     _activeDate.value = newDate;
     widget.onChange?.call(newDate);
 
-    /* Recheck positions */
-    if (!isRecheckingPosition.value) {
-      isRecheckingPosition.value = true;
-      await _recheckPosition(DateTimeType.year, newDate);
-      await _recheckPosition(DateTimeType.month, newDate);
-      await _recheckPosition(DateTimeType.day, newDate);
-      await _recheckPosition(DateTimeType.weekday, newDate);
-      isRecheckingPosition.value = false;
-    }
-
-    return;
+    await _recheckPosition(newDate);
   }
 
-  Future<void> _recheckPosition(DateTimeType type, DateTime date) async {
+  Future<void> _recheckPosition(DateTime date) async {
+    if (isRecheckingPosition.value) return;
+
+    const types = [
+      DateTimeType.year,
+      DateTimeType.month,
+      DateTimeType.day,
+      DateTimeType.weekday,
+    ];
+
+    isRecheckingPosition.value = true;
+    for (final type in types) {
+      await _recheckPositionByType(type, date);
+    }
+    isRecheckingPosition.value = false;
+  }
+
+  Future<void> _recheckPositionByType(DateTimeType type, DateTime date) async {
     final index = _option.dateTimeTypes.indexOf(type);
     if (index != -1) {
       late int targetPosition;
@@ -387,7 +399,5 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
         }
       }
     }
-
-    return;
   }
 }
