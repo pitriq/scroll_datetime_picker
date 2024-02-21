@@ -231,9 +231,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       onPressed: () {
+                        final now = DateTime.now();
                         setState(() {
-                          date = DateTime.now();
-                          time = DateTime.now();
+                          date = now;
+                          time = now;
                         });
                       },
                       child: const Padding(
