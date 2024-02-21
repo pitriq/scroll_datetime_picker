@@ -117,14 +117,17 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (widget.disableInitialScrollAnimation) {
+        _isProgrammaticScroll.value = true;
         _jumpToDate();
+        _isProgrammaticScroll.value = false;
         return;
       }
       _isProgrammaticScroll.value = true;
       _scrollToDate().then((_) {
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          _isProgrammaticScroll.value = false;
-        });
+        Future.delayed(
+          const Duration(milliseconds: 100),
+          () => _isProgrammaticScroll.value = false,
+        );
       });
     });
   }
@@ -159,9 +162,10 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
       _activeDate = widget.dateOption.getInitialDate;
       _isProgrammaticScroll.value = true;
       _scrollToDate().then((_) {
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          _isProgrammaticScroll.value = false;
-        });
+        Future.delayed(
+          const Duration(milliseconds: 100),
+          () => _isProgrammaticScroll.value = false,
+        );
       });
     }
 
@@ -173,6 +177,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   @override
   void dispose() {
     isRecheckingPosition.dispose();
+    _isProgrammaticScroll.dispose();
     for (final ctrl in _controllers) {
       ctrl.dispose();
     }
