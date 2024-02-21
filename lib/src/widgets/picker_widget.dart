@@ -176,11 +176,13 @@ class _PickerWidgetState extends State<PickerWidget> {
         final rowIndex =
             (endExtent / widget.itemExtent).floor() % widget.itemCount;
 
+        widget.isProgrammaticScroll.value = true;
         await widget.controller.animateTo(
           endExtent,
           duration: const Duration(milliseconds: 500),
           curve: Curves.bounceOut,
         );
+        widget.isProgrammaticScroll.value = false;
 
         if (allowChange) {
           widget.onChange.call(rowIndex);
