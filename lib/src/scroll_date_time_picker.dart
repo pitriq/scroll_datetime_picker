@@ -118,33 +118,29 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     super.didUpdateWidget(oldWidget);
 
     if (widget.dateOption != _option) {
-      setState(() {
-        _option = widget.dateOption;
-        _helper = DateTimePickerHelper(_option);
+      _option = widget.dateOption;
+      _helper = DateTimePickerHelper(_option);
 
-        if (_option.patterns.length != _controllers.length) {
-          final difference = _option.patterns.length - _controllers.length;
-          if (difference.isNegative) {
-            _controllers.removeRange(
-              _controllers.length - difference.abs(),
-              _controllers.length,
-            );
-          } else {
-            _controllers.addAll(
-              List.generate(
-                difference,
-                (_) => ScrollController(),
-              ),
-            );
-          }
+      if (_option.patterns.length != _controllers.length) {
+        final difference = _option.patterns.length - _controllers.length;
+        if (difference.isNegative) {
+          _controllers.removeRange(
+            _controllers.length - difference.abs(),
+            _controllers.length,
+          );
+        } else {
+          _controllers.addAll(
+            List.generate(
+              difference,
+              (_) => ScrollController(),
+            ),
+          );
         }
-      });
+      }
     }
 
     if (widget.style != _style) {
-      setState(() {
-        _style = widget.style ?? _style;
-      });
+      _style = widget.style ?? _style;
     }
   }
 
