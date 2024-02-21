@@ -200,7 +200,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         Icon(
                           Icons.arrow_right_alt,
                           size: 40,
-                        )
+                        ),
                       ],
                     ),
                   ),
