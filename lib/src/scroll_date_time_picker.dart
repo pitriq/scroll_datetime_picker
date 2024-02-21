@@ -91,6 +91,7 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
   late DateTimePickerHelper _helper;
 
   late final ValueNotifier<bool> isRecheckingPosition;
+  bool _isScrollingToDate = false;
 
   @override
   void initState() {
@@ -109,7 +110,13 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     );
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      _scrollToDate();
+      _isScrollingToDate = true;
+      _scrollToDate().then((_) async {
+        await Future.delayed(
+          Duration.zero,
+          () => _isScrollingToDate = false,
+        );
+      });
     });
   }
 
@@ -141,7 +148,13 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
 
     if (widget.dateOption.getInitialDate != _activeDate) {
       _activeDate = widget.dateOption.getInitialDate;
-      _scrollToDate();
+      _isScrollingToDate = true;
+      _scrollToDate().then((_) async {
+        await Future.delayed(
+          Duration.zero,
+          () => _isScrollingToDate = false,
+        );
+      });
     }
 
     if (widget.style != _style) {
@@ -262,8 +275,9 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
     );
   }
 
-  void _scrollToDate() {
+  Future<void> _scrollToDate() async {
     final activeDate = _activeDate;
+    final futures = <Future<void>>[];
 
     for (var i = 0; i < _option.dateTimeTypes.length; i++) {
       late double extent;
@@ -299,16 +313,22 @@ class _ScrollDateTimePickerState extends State<ScrollDateTimePicker> {
       }
 
       if (_controllers[i].hasClients) {
-        _controllers[i].animateTo(
-          widget.itemExtent * extent,
-          duration: const Duration(milliseconds: 100),
-          curve: Curves.easeOut,
+        futures.add(
+          _controllers[i].animateTo(
+            widget.itemExtent * extent,
+            duration: const Duration(milliseconds: 100),
+            curve: Curves.easeOut,
+          ),
         );
       }
     }
+
+    await Future.wait(futures);
   }
 
   Future<void> _onChange(DateTimeType type, int rowIndex) async {
+    if (_isScrollingToDate) return;
+
     var newDate = _helper.getDateFromRowIndex(
       type: type,
       rowIndex: rowIndex,
